@@ -1,0 +1,66 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Template Service for SU",
+        "title": "Template Service API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8083",
+    "basePath": "/",
+    "paths": {
+        "/:departmentID": {
+            "get": {
+                "description": "Show department with details",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "template"
+                ],
+                "summary": "Show department",
+                "operationId": "department",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "DepartmentRepo ID",
+                        "name": "departmentID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.Response": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "message": {
+                    "type": "string"
+                },
+                "response_time": {
+                    "type": "number"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}

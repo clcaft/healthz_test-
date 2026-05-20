@@ -1,0 +1,48 @@
+version: '3.9'
+services:
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.8.12-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  mongo:
+    container_name: mongo
+    image: mongo:4.4
+    volumes:
+      - .mongo-data:/data/db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: dev
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    restart: unless-stopped
+
+  api-menu:
+    image: 166075240568.dkr.ecr.eu-central-1.amazonaws.com/api-menu-service:v2.23.0
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_BASE=accounting_eda1
+      - DB_PASS=111111
+      - MIN_SCORES_COUNT=3
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    image: template-service:latest
+    env_file: '.env'
+    ports:
+      - "8083:8083"
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
+volumes:
+  .mongo-data:
+    driver: local

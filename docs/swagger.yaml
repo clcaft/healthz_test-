@@ -1,0 +1,44 @@
+basePath: /
+definitions:
+  dto.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+      response_time:
+        type: number
+      success:
+        type: boolean
+    type: object
+host: localhost:8083
+info:
+  contact: {}
+  description: Template Service for SU
+  title: Template Service API
+  version: "1.0"
+paths:
+  /:departmentID:
+    get:
+      description: Show department with details
+      operationId: department
+      parameters:
+      - description: DepartmentRepo ID
+        in: path
+        name: departmentID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      summary: Show department
+      tags:
+      - template
+swagger: "2.0"

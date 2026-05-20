@@ -1,0 +1,27 @@
+app:
+  name: 'template-service'
+  version: '0.0.1'
+  is_goulash: true
+
+http:
+  port: '8083'
+
+logger:
+  log_level: 'debug'
+  log_out: 'json'
+
+mongo:
+  timeout: '1s'
+
+mysql:
+  timeout: '3s'
+
+rabbitmq:
+  rmq_exchange_name: 'template-service'
+  rmq_exchange_type: 'direct'
+  rmq_queues:
+    template-service: 'template'
+
+services:
+  menu_catalog:
+    service_url: 'https://release.goulash.tech/catalof-api'
