@@ -18,10 +18,10 @@ import (
 
 // NewRouter -.
 // Swagger spec:
-// @title       Template Service API
-// @description Template Service for SU
+// @title       Go Service API
+// @description Go Service API
 // @version     1.0
-// @host        localhost:8083
+// @host        localhost:8080
 // @BasePath    /
 func NewRouter(handler *gin.Engine, uc *usecase.UseCases, l logger.Interface) {
 	// Options

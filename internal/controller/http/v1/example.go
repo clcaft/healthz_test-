@@ -33,13 +33,13 @@ func newRoutes(handler *gin.RouterGroup, uc *usecase.UseCases, l logger.Interfac
 
 // @Summary     Увеличивает значение счётчика в БД
 // @Description Находит в БД счётчик с указанным ID, создаёт в случае отсутствия, и увеличивает значение счётчика на указанное значение
-// @ID          department
-// @Tags  	    template
+// @ID          plus-value
+// @Tags  	    example
 // @Produce     json
-// @Param       ID path integer true "DepartmentRepo ID"
+// @Param       ID path integer true "Counter ID"
 // @Success     200 {object} dto.Response
 // @Failure     500 {object} dto.Response
-// @Router      /:ID [post]
+// @Router      /v1/example/plus/{ID} [post]
 func (r *Routes) plusValue(c *gin.Context) {
 	ctx := r.getTrackingCtx(c)
 

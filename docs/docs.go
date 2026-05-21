@@ -15,42 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/:ID": {
-            "post": {
-                "description": "Находит в БД счётчик с указанным ID, создаёт в случае отсутствия, и увеличивает значение счётчика на указанное значение",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "template"
-                ],
-                "summary": "Увеличивает значение счётчика в БД",
-                "operationId": "department",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "DepartmentRepo ID",
-                        "name": "ID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/dto.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/healthz": {
             "get": {
                 "description": "Returns service health status",
@@ -69,6 +33,42 @@ const docTemplate = `{
                             "additionalProperties": {
                                 "type": "string"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/example/plus/{ID}": {
+            "post": {
+                "description": "Находит в БД счётчик с указанным ID, создаёт в случае отсутствия, и увеличивает значение счётчика на указанное значение",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "example"
+                ],
+                "summary": "Увеличивает значение счётчика в БД",
+                "operationId": "plus-value",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Counter ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
                         }
                     }
                 }
@@ -93,12 +93,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0",
+	Host:             "localhost:8080",
+	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Go Service API",
+	Description:      "Go Service API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

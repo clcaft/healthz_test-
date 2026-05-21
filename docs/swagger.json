@@ -1,45 +1,14 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "Go Service API",
+        "title": "Go Service API",
+        "contact": {},
+        "version": "1.0"
     },
+    "host": "localhost:8080",
+    "basePath": "/",
     "paths": {
-        "/:ID": {
-            "post": {
-                "description": "Находит в БД счётчик с указанным ID, создаёт в случае отсутствия, и увеличивает значение счётчика на указанное значение",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "template"
-                ],
-                "summary": "Увеличивает значение счётчика в БД",
-                "operationId": "department",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "DepartmentRepo ID",
-                        "name": "ID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/dto.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/healthz": {
             "get": {
                 "description": "Returns service health status",
@@ -58,6 +27,42 @@
                             "additionalProperties": {
                                 "type": "string"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/example/plus/{ID}": {
+            "post": {
+                "description": "Находит в БД счётчик с указанным ID, создаёт в случае отсутствия, и увеличивает значение счётчика на указанное значение",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "example"
+                ],
+                "summary": "Увеличивает значение счётчика в БД",
+                "operationId": "plus-value",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Counter ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
                         }
                     }
                 }

@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   dto.Response:
     properties:
@@ -7,16 +8,35 @@ definitions:
       success:
         type: boolean
     type: object
+host: localhost:8080
 info:
   contact: {}
+  description: Go Service API
+  title: Go Service API
+  version: "1.0"
 paths:
-  /:ID:
+  /healthz:
+    get:
+      description: Returns service health status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check
+      tags:
+      - health
+  /v1/example/plus/{ID}:
     post:
       description: Находит в БД счётчик с указанным ID, создаёт в случае отсутствия,
         и увеличивает значение счётчика на указанное значение
-      operationId: department
+      operationId: plus-value
       parameters:
-      - description: DepartmentRepo ID
+      - description: Counter ID
         in: path
         name: ID
         required: true
@@ -34,20 +54,5 @@ paths:
             $ref: '#/definitions/dto.Response'
       summary: Увеличивает значение счётчика в БД
       tags:
-      - template
-  /healthz:
-    get:
-      description: Returns service health status
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Health check
-      tags:
-      - health
+      - example
 swagger: "2.0"
