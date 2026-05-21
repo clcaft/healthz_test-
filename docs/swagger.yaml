@@ -1,30 +1,24 @@
-basePath: /
 definitions:
   dto.Response:
     properties:
       data: {}
       message:
         type: string
-      response_time:
-        type: number
       success:
         type: boolean
     type: object
-host: localhost:8083
 info:
   contact: {}
-  description: Template Service for SU
-  title: Template Service API
-  version: "1.0"
 paths:
-  /:departmentID:
-    get:
-      description: Show department with details
+  /:ID:
+    post:
+      description: Находит в БД счётчик с указанным ID, создаёт в случае отсутствия,
+        и увеличивает значение счётчика на указанное значение
       operationId: department
       parameters:
       - description: DepartmentRepo ID
         in: path
-        name: departmentID
+        name: ID
         required: true
         type: integer
       produces:
@@ -38,7 +32,22 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/dto.Response'
-      summary: Show department
+      summary: Увеличивает значение счётчика в БД
       tags:
       - template
+  /healthz:
+    get:
+      description: Returns service health status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check
+      tags:
+      - health
 swagger: "2.0"

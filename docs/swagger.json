@@ -1,30 +1,25 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Template Service for SU",
-        "title": "Template Service API",
-        "contact": {},
-        "version": "1.0"
+        "contact": {}
     },
-    "host": "localhost:8083",
-    "basePath": "/",
     "paths": {
-        "/:departmentID": {
-            "get": {
-                "description": "Show department with details",
+        "/:ID": {
+            "post": {
+                "description": "Находит в БД счётчик с указанным ID, создаёт в случае отсутствия, и увеличивает значение счётчика на указанное значение",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "template"
                 ],
-                "summary": "Show department",
+                "summary": "Увеличивает значение счётчика в БД",
                 "operationId": "department",
                 "parameters": [
                     {
                         "type": "integer",
                         "description": "DepartmentRepo ID",
-                        "name": "departmentID",
+                        "name": "ID",
                         "in": "path",
                         "required": true
                     }
@@ -44,6 +39,29 @@
                     }
                 }
             }
+        },
+        "/healthz": {
+            "get": {
+                "description": "Returns service health status",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -53,9 +71,6 @@
                 "data": {},
                 "message": {
                     "type": "string"
-                },
-                "response_time": {
-                    "type": "number"
                 },
                 "success": {
                     "type": "boolean"

@@ -29,15 +29,10 @@ func NewRouter(handler *gin.Engine, uc *usecase.UseCases, l logger.Interface) {
 	handler.Use(gin.Recovery())
 
 	// Swagger
-	swaggerHandler := ginSwagger.DisablingWrapHandler(swaggerFiles.Handler, "DISABLE_SWAGGER_HTTP_HANDLER")
-	handler.GET("/swagger/*any", swaggerHandler)
+	handler.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// K8s probe
-	handler.GET("/healthz", func(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"status": "ok",
-	})
-})
+	handler.GET("/healthz", healthz)
 
 	// Prometheus metrics
 	handler.GET("/metrics", gin.WrapH(promhttp.Handler()))
@@ -50,5 +45,18 @@ func NewRouter(handler *gin.Engine, uc *usecase.UseCases, l logger.Interface) {
 
 	handler.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, dto.Response{Message: "route not found"})
+	})
+}
+
+// healthz godoc
+// @Summary      Health check
+// @Description  Returns service health status
+// @Tags         health
+// @Produce      json
+// @Success      200  {object}  map[string]string
+// @Router       /healthz [get]
+func healthz(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status": "ok",
 	})
 }
