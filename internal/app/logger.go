@@ -25,9 +25,7 @@ func slogger(cfg *config.Log) *slog.Logger {
 			handlers...,
 		),
 	)
-	/*logger = logger.With(
-		slog.Group(app.SubCompany, slog.String("version", app.Version)),
-	)*/
+
 	slog.SetDefault(logger)
 	return logger
 }
@@ -82,8 +80,6 @@ func consoleHandler(level string) slog.Handler {
 		ReplaceAttr: replaceAttr,
 	}
 
-	// взял из примера в документации, чтобы просто посмотреть
-	// потом можно настраивать, если подойдет
 	opts := &devslog.Options{
 		HandlerOptions:    slogOpts,
 		MaxSlicePrintSize: 4,

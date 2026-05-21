@@ -11,35 +11,35 @@ import (
 type (
 	// Config -.
 	Config struct {
-		App      `yaml:"app"`
-		HTTP     `yaml:"http"`
-		Log      `yaml:"logger"`
-		Mongo    `yaml:"mongo"`
-		MySQL    `yaml:"mysql"`
-		RMQ      `yaml:"rabbitmq"`
-		Services `yaml:"services"`
-		Tracer   `yaml:"tracer"`
-		GRPC
+		App    `yaml:"app"`
+		HTTP   `yaml:"http"`
+		GRPC   `yaml:"grpc"`
+		Log    `yaml:"logger"`
+		MySQL  `yaml:"mysql"`
+		RMQ    `yaml:"rabbitmq"`
+		Tracer `yaml:"tracer"`
 	}
 
 	// App -.
 	App struct {
-		IsGoulash bool `env-required:"true" yaml:"is_goulash" env:"APP_IS_GOULASH" env-default:"true"`
+		Name    string `yaml:"name"    env:"APP_NAME"    env-default:"go-service"`
+		Version string `yaml:"version" env:"APP_VERSION" env-default:"0.0.1"`
 	}
 
 	// HTTP -.
 	HTTP struct {
 		Port string `env-required:"true" yaml:"port" env:"HTTP_PORT" env-default:"8080"`
 	}
+
 	GRPC struct {
-		Port                   int  `env:"GRPC_PORT" env-default:"8081"`
-		EnableServerReflection bool `env:"GRPC_SERVER_REFLECTION" env-default:"false"`
+		Port                   int  `yaml:"port"                     env:"GRPC_PORT"              env-default:"8081"`
+		EnableServerReflection bool `yaml:"enable_server_reflection" env:"GRPC_SERVER_REFLECTION" env-default:"false"`
 	}
 
 	// Log -.
 	Log struct {
 		Level string `env-required:"true" yaml:"log_level" env:"LOG_LEVEL"`
-		Out   string `                    yaml:"log_out"   env:"LOG_OUT"`
+		Out   string `yaml:"log_out"   env:"LOG_OUT" env-default:"console"`
 
 		ElkRabbitUri string `yaml:"uri" env:"ELK_LOG_RABBITMQ"`
 		ElkLevel     string `env:"ELK_LOG_LEVEL"`
@@ -48,39 +48,29 @@ type (
 		Partner      string `yaml:"partner" env:"PARTNER_NAME"`
 	}
 
-	Mongo struct {
-		URI     string        `env-required:"true"                 env:"MONGO_DSN"`
-		Timeout time.Duration `env-required:"true" yaml:"timeout"  env:"MONGO_TIMEOUT" env-default:"3s"`
-	}
-
 	MySQL struct {
-		Username        string        `yaml:"username"          env:"DB_USERNAME"`
-		Password        string        `yaml:"password"          env:"DB_PASSWORD"`
-		Host            string        `yaml:"host"              env:"DB_HOST"`
-		Port            string        `yaml:"port"              env:"DB_PORT"`
-		DBName          string        `yaml:"db_name"           env:"DB_NAME"`
-		Timeout         time.Duration `yaml:"timeout"           env:"DB_TIMEOUT"          env-default:"3s"`
-		RefreshInterval time.Duration ` yaml:"refresh_interval"  env:"DB_REFRESH_INTERVAL" env-default:"5m"`
+		Username        string        `yaml:"username"         env:"DB_USERNAME"         env-default:"root"`
+		Password        string        `yaml:"password"         env:"DB_PASSWORD"`
+		Host            string        `yaml:"host"             env:"DB_HOST"             env-default:"localhost"`
+		Port            string        `yaml:"port"             env:"DB_PORT"             env-default:"3306"`
+		DBName          string        `yaml:"db_name"          env:"DB_NAME"`
+		Charset         string        `yaml:"charset"          env:"DB_CHARSET"          env-default:"utf8mb4"`
+		SlaveCount      int           `yaml:"slave_count"      env:"DB_SLAVE_COUNT"      env-default:"1"`
+		Timeout         time.Duration `yaml:"timeout"          env:"DB_TIMEOUT"          env-default:"3s"`
+		RefreshInterval time.Duration `yaml:"refresh_interval" env:"DB_REFRESH_INTERVAL" env-default:"5m"`
 	}
 
 	// RMQ -.
 	RMQ struct {
-		DsnList []string `env-required:"true" yaml:"rmq_dsn_list"      env:"RMQ_DSN_LIST"`
-	}
-
-	// Services Конфиг внешних сервисов.
-	Services struct {
-		MenuCatalog `yaml:"menu_catalog"`
-	}
-
-	// MenuCatalog Микросервис Каталога.
-	MenuCatalog struct {
-		ServiceURL string `yaml:"service_url" env:"MENU_CATALOG_SERVICE_URL"`
+		DsnList      []string          `yaml:"dsn_list"      env:"RMQ_DSN_LIST"`
+		ExchangeName string            `yaml:"exchange_name" env:"RMQ_EXCHANGE_NAME" env-default:"go-service"`
+		ExchangeType string            `yaml:"exchange_type" env:"RMQ_EXCHANGE_TYPE" env-default:"direct"`
+		Queues       map[string]string `yaml:"queues"`
 	}
 
 	Tracer struct {
-		TracerCollector string `env:"TRACER_COLLECTOR"`
-		TracerService   string `env:"TRACER_SERVICE" env-default:"template-service"`
+		TracerCollector string `yaml:"collector" env:"TRACER_COLLECTOR"`
+		TracerService   string `yaml:"service"   env:"TRACER_SERVICE" env-default:"go-service"`
 	}
 )
 
