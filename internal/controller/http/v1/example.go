@@ -29,6 +29,7 @@ func newRoutes(handler *gin.RouterGroup, uc *usecase.UseCases, l logger.Interfac
 	r := &Routes{l, uc}
 
 	handler.POST("/example/plus/:ID", r.plusValue)
+	handler.POST("/rabbit/send", sendRabbitMessage)
 }
 
 // @Summary     Увеличивает значение счётчика в БД

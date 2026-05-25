@@ -1,0 +1,7 @@
+{
+  "queue": "test-json-queue",
+  "data": {
+    "message": "hello rabbit",
+    "source": "go-service"
+  }
+}

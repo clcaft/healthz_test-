@@ -29,10 +29,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/dto.HealthzResponse"
                         }
                     }
                 }
@@ -73,9 +70,78 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/rabbit/send": {
+            "post": {
+                "description": "Accepts queue name and JSON data, then sends data to RabbitMQ",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rabbitmq"
+                ],
+                "summary": "Send JSON message to RabbitMQ queue",
+                "operationId": "rabbit-send",
+                "parameters": [
+                    {
+                        "description": "RabbitMQ JSON message",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RabbitSendRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "dto.HealthzResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "ok"
+                }
+            }
+        },
+        "dto.RabbitSendRequest": {
+            "type": "object",
+            "required": [
+                "queue"
+            ],
+            "properties": {
+                "data": {},
+                "queue": {
+                    "type": "string",
+                    "example": "test-queue"
+                }
+            }
+        },
         "dto.Response": {
             "type": "object",
             "properties": {

@@ -14,5 +14,5 @@ RUN go test ./... && go build -ldflags="-s -w" -o /bin/app ./cmd/app
 # Step 2: Final
 FROM alpine:3
 COPY --from=builder /app/config/config.yml /config/config.yml
-COPY --from=builder /bin/app /template-service
-CMD ["/template-service"]
+COPY --from=builder /bin/app /go-service
+CMD ["/go-service"]

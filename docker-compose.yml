@@ -1,48 +1,47 @@
-version: '3.9'
 services:
+  mysql:
+    image: mysql:8.0.33
+    container_name: mysql1
+    volumes:
+      - /mnt/d/xampp83/projects/mysql:/var/lib/mysql
+      - ./conf/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+    ports:
+      - "3307:3306"
+    environment:
+      - TZ=Asia/Yekaterinburg
+      - MYSQL_ROOT_PASSWORD=111111
+      - MYSQL_DATABASE=accounting_eda1
+      - MYSQL_ALLOW_EMPTY_PASSWORD=false
+      - MYSQL_RANDOM_ROOT_PASSWORD=false
+    restart: unless-stopped
+
 
   rabbitmq:
-    container_name: rabbitmq
-    image: rabbitmq:3.8.12-management
+    image: rabbitmq:3.10.1-management-alpine
+    container_name: rabbit1
+    hostname: rabbitmq
+    volumes:
+      - /root/mysql/rabbitmq:/var/lib/rabbitmq  
+      - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
     ports:
       - "5672:5672"
       - "15672:15672"
-
-  mongo:
-    container_name: mongo
-    image: mongo:4.4
-    volumes:
-      - .mongo-data:/data/db
-    ports:
-      - "27017:27017"
+      - "15674:15674"
     environment:
-      MONGO_INITDB_DATABASE: dev
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
     restart: unless-stopped
-
-  api-menu:
-    image: 166075240568.dkr.ecr.eu-central-1.amazonaws.com/api-menu-service:v2.23.0
-    environment:
-      - DB_HOST=mysql
-      - DB_USER=root
-      - DB_BASE=accounting_eda1
-      - DB_PASS=111111
-      - MIN_SCORES_COUNT=3
 
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: app
-    image: template-service:latest
-    env_file: '.env'
+    container_name: go-service
+    image: go-service:latest
+    env_file: ".env"
     ports:
-      - "8083:8083"
+      - "8080:8080"
     depends_on:
-      - mongo
+      - mysql
+      - rabbitmq
     restart: unless-stopped
-
-volumes:
-  .mongo-data:
-    driver: local

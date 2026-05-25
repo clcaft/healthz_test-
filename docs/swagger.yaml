@@ -1,5 +1,20 @@
 basePath: /
 definitions:
+  dto.HealthzResponse:
+    properties:
+      status:
+        example: ok
+        type: string
+    type: object
+  dto.RabbitSendRequest:
+    properties:
+      data: {}
+      queue:
+        example: test-queue
+        type: string
+    required:
+    - queue
+    type: object
   dto.Response:
     properties:
       data: {}
@@ -24,9 +39,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/dto.HealthzResponse'
       summary: Health check
       tags:
       - health
@@ -55,4 +68,35 @@ paths:
       summary: Увеличивает значение счётчика в БД
       tags:
       - example
+  /v1/rabbit/send:
+    post:
+      consumes:
+      - application/json
+      description: Accepts queue name and JSON data, then sends data to RabbitMQ
+      operationId: rabbit-send
+      parameters:
+      - description: RabbitMQ JSON message
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RabbitSendRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      summary: Send JSON message to RabbitMQ queue
+      tags:
+      - rabbitmq
 swagger: "2.0"
