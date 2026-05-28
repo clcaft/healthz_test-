@@ -71,11 +71,30 @@ paths:
       summary: Увеличивает значение счётчика в БД
       tags:
       - example
+  /v1/rabbit/read-all:
+    get:
+      description: Reads all available JSON messages from RabbitMQ queue and returns
+        them as array
+      operationId: rabbit-read-all
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      summary: Read all JSON messages from RabbitMQ queue
+      tags:
+      - rabbitmq
   /v1/rabbit/send:
     post:
       consumes:
       - application/json
-      description: Accepts JSON data and sends it to RabbitMQ queue
+      description: Accepts JSON data, adds current time and sends it to RabbitMQ queue
       operationId: rabbit-send
       parameters:
       - description: RabbitMQ JSON message

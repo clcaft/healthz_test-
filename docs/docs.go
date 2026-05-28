@@ -71,9 +71,36 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/rabbit/read-all": {
+            "get": {
+                "description": "Reads all available JSON messages from RabbitMQ queue and returns them as array",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rabbitmq"
+                ],
+                "summary": "Read all JSON messages from RabbitMQ queue",
+                "operationId": "rabbit-read-all",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/rabbit/send": {
             "post": {
-                "description": "Accepts JSON data and sends it to RabbitMQ queue",
+                "description": "Accepts JSON data, adds current time and sends it to RabbitMQ queue",
                 "consumes": [
                     "application/json"
                 ],

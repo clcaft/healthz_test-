@@ -8,3 +8,9 @@ type RabbitSendRequest struct {
 type RabbitSendResponse struct {
 	Message string `json:"message" example:"sent"`
 }
+
+type RabbitMessage struct {
+	Message   string `json:"message" example:"hello rabbit"`
+	Source    string `json:"source" example:"go-service"`
+	CreatedAt string `json:"created_at" example:"2026-05-25T18:30:00+05:00"`
+}
