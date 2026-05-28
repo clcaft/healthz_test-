@@ -49,7 +49,7 @@ func Run(cfg *config.Config) {
 	handler := gin.New()
 	handler.Use(metricsCollector.MetricsMiddleware(metrics))
 	handler.Use(tracer.TracerMiddleware(traces))
-	v1.NewRouter(handler, uc, l)
+	v1.NewRouter(handler, uc, l, cfg)
 	httpServer := httpserver.New(handler, httpserver.Port(cfg.HTTP.Port))
 
 	// Waiting signal

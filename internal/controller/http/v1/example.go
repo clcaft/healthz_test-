@@ -21,15 +21,20 @@ const (
 )
 
 type Routes struct {
-	l  logger.Interface
-	uc *usecase.UseCases
+	l          logger.Interface
+	uc         *usecase.UseCases
+	rmqDsnList []string
 }
 
-func newRoutes(handler *gin.RouterGroup, uc *usecase.UseCases, l logger.Interface) {
-	r := &Routes{l, uc}
+func newRoutes(handler *gin.RouterGroup, uc *usecase.UseCases, l logger.Interface, rmqDsnList []string) {
+	r := &Routes{
+		l:          l,
+		uc:         uc,
+		rmqDsnList: rmqDsnList,
+	}
 
 	handler.POST("/example/plus/:ID", r.plusValue)
-	handler.POST("/rabbit/send", sendRabbitMessage)
+	handler.POST("/rabbit/send", r.sendRabbitMessage)
 }
 
 // @Summary     Увеличивает значение счётчика в БД

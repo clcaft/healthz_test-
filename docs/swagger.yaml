@@ -8,12 +8,15 @@ definitions:
     type: object
   dto.RabbitSendRequest:
     properties:
-      data: {}
-      queue:
-        example: test-queue
+      message:
+        example: hello rabbit
+        type: string
+      source:
+        example: go-service
         type: string
     required:
-    - queue
+    - message
+    - source
     type: object
   dto.Response:
     properties:
@@ -72,7 +75,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Accepts queue name and JSON data, then sends data to RabbitMQ
+      description: Accepts JSON data and sends it to RabbitMQ queue
       operationId: rabbit-send
       parameters:
       - description: RabbitMQ JSON message

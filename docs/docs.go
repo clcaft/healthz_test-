@@ -73,7 +73,7 @@ const docTemplate = `{
         },
         "/v1/rabbit/send": {
             "post": {
-                "description": "Accepts queue name and JSON data, then sends data to RabbitMQ",
+                "description": "Accepts JSON data and sends it to RabbitMQ queue",
                 "consumes": [
                     "application/json"
                 ],
@@ -132,13 +132,17 @@ const docTemplate = `{
         "dto.RabbitSendRequest": {
             "type": "object",
             "required": [
-                "queue"
+                "message",
+                "source"
             ],
             "properties": {
-                "data": {},
-                "queue": {
+                "message": {
                     "type": "string",
-                    "example": "test-queue"
+                    "example": "hello rabbit"
+                },
+                "source": {
+                    "type": "string",
+                    "example": "go-service"
                 }
             }
         },

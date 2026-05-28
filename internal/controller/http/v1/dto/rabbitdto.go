@@ -1,11 +1,10 @@
 package dto
 
 type RabbitSendRequest struct {
-	Queue string `json:"queue" binding:"required" example:"test-queue"`
-	Data  any    `json:"data"`
+	Message string `json:"message" binding:"required" example:"hello rabbit"`
+	Source  string `json:"source" binding:"required" example:"go-service"`
 }
 
 type RabbitSendResponse struct {
-	Queue string `json:"queue" example:"test-queue"`
-	Data  any    `json:"data"`
+	Message string `json:"message" example:"sent"`
 }

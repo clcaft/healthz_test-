@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -15,10 +13,12 @@ import (
 	"gl.eda1.ru/go/go-service-template/internal/controller/http/v1/dto"
 )
 
+const rabbitSendQueue = "test-json-queue"
+
 var ErrRabbitDSNEmpty = errors.New("rabbitmq dsn is empty")
 
 // @Summary     Send JSON message to RabbitMQ queue
-// @Description Accepts queue name and JSON data, then sends data to RabbitMQ
+// @Description Accepts JSON data and sends it to RabbitMQ queue
 // @ID          rabbit-send
 // @Tags        rabbitmq
 // @Accept      json
@@ -28,7 +28,7 @@ var ErrRabbitDSNEmpty = errors.New("rabbitmq dsn is empty")
 // @Failure     400 {object} dto.Response
 // @Failure     500 {object} dto.Response
 // @Router      /v1/rabbit/send [post]
-func sendRabbitMessage(c *gin.Context) {
+func (r *Routes) sendRabbitMessage(c *gin.Context) {
 	var request dto.RabbitSendRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, dto.Response{
@@ -37,14 +37,7 @@ func sendRabbitMessage(c *gin.Context) {
 		return
 	}
 
-	if request.Data == nil {
-		c.JSON(http.StatusBadRequest, dto.Response{
-			Message: "data is required",
-		})
-		return
-	}
-
-	if err := publishJSONToQueue(c.Request.Context(), request.Queue, request.Data); err != nil {
+	if err := publishJSONToQueue(c.Request.Context(), r.rabbitDSN(), rabbitSendQueue, request); err != nil {
 		c.JSON(http.StatusInternalServerError, dto.Response{
 			Message: err.Error(),
 		})
@@ -55,19 +48,17 @@ func sendRabbitMessage(c *gin.Context) {
 		Success: true,
 		Message: "Ok",
 		Data: dto.RabbitSendResponse{
-			Queue: request.Queue,
-			Data:  request.Data,
+			Message: "sent",
 		},
 	})
 }
 
-func publishJSONToQueue(ctx context.Context, queue string, data any) error {
+func publishJSONToQueue(ctx context.Context, dsn string, queue string, data dto.RabbitSendRequest) error {
 	body, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
 
-	dsn := rabbitDSN()
 	if dsn == "" {
 		return ErrRabbitDSNEmpty
 	}
@@ -112,16 +103,10 @@ func publishJSONToQueue(ctx context.Context, queue string, data any) error {
 	)
 }
 
-func rabbitDSN() string {
-	dsnList := os.Getenv("RMQ_DSN_LIST")
-	if dsnList == "" {
+func (r *Routes) rabbitDSN() string {
+	if len(r.rmqDsnList) == 0 {
 		return ""
 	}
 
-	parts := strings.Split(dsnList, ",")
-	if len(parts) == 0 {
-		return ""
-	}
-
-	return strings.TrimSpace(parts[0])
+	return r.rmqDsnList[0]
 }

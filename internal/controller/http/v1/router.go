@@ -10,6 +10,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	// Swagger docs.
+	"gl.eda1.ru/go/go-service-template/config"
 	_ "gl.eda1.ru/go/go-service-template/docs"
 	"gl.eda1.ru/go/go-service-template/internal/controller/http/v1/dto"
 	"gl.eda1.ru/go/go-service-template/internal/usecase"
@@ -23,7 +24,7 @@ import (
 // @version     1.0
 // @host        localhost:8080
 // @BasePath    /
-func NewRouter(handler *gin.Engine, uc *usecase.UseCases, l logger.Interface) {
+func NewRouter(handler *gin.Engine, uc *usecase.UseCases, l logger.Interface, cfg *config.Config) {
 	// Options
 	handler.Use(gin.Logger())
 	handler.Use(gin.Recovery())
@@ -40,7 +41,7 @@ func NewRouter(handler *gin.Engine, uc *usecase.UseCases, l logger.Interface) {
 	// Routers
 	h := handler.Group("/v1")
 	{
-		newRoutes(h, uc, l)
+		newRoutes(h, uc, l, cfg.RMQ.DsnList)
 	}
 
 	handler.NoRoute(func(c *gin.Context) {
