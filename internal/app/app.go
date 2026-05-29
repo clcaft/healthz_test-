@@ -12,6 +12,7 @@ import (
 	"gl.eda1.ru/go/go-service-template/config"
 	v1 "gl.eda1.ru/go/go-service-template/internal/controller/http/v1"
 	"gl.eda1.ru/go/go-service-template/internal/domain"
+	"gl.eda1.ru/go/go-service-template/internal/migrations"
 	"gl.eda1.ru/go/go-service-template/internal/usecase"
 	"gl.eda1.ru/go/go-service-template/pkg/httpserver"
 	"gl.eda1.ru/go/go-service-template/pkg/logger"
@@ -38,6 +39,12 @@ func Run(cfg *config.Config) {
 		conn = mysql.GetConnector(&cfg.MySQL, traces)
 		defer conn.Close()
 		l.Info(ctx, "MySQL connected")
+
+		if err := migrations.Run(cfg.MySQL); err != nil {
+			l.Error(ctx, fmt.Sprintf("app - Run - migrations.Run: %v", err))
+			return
+		}
+		l.Info(ctx, "MySQL migrations applied")
 	} else {
 		l.Info(ctx, "MySQL disabled (no config)")
 	}

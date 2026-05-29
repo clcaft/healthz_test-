@@ -3,8 +3,7 @@ services:
     image: mysql:8.0.33
     container_name: mysql1
     volumes:
-      - /mnt/d/xampp83/projects/mysql:/var/lib/mysql
-      - ./conf/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+      - mysql-data:/var/lib/mysql
     ports:
       - "3307:3306"
     environment:
@@ -15,13 +14,11 @@ services:
       - MYSQL_RANDOM_ROOT_PASSWORD=false
     restart: unless-stopped
 
-
   rabbitmq:
     image: rabbitmq:3.10.1-management-alpine
     container_name: rabbit1
     hostname: rabbitmq
     volumes:
-      - /root/mysql/rabbitmq:/var/lib/rabbitmq  
       - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
     ports:
       - "5672:5672"
@@ -45,3 +42,6 @@ services:
       - mysql
       - rabbitmq
     restart: unless-stopped
+
+volumes:
+  mysql-data:
