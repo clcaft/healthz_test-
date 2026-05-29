@@ -17,6 +17,56 @@ const rabbitSendQueue = "test-json-queue"
 
 var ErrRabbitDSNEmpty = errors.New("rabbitmq dsn is empty")
 
+type rabbitChannel struct {
+	conn *amqp.Connection
+	ch   *amqp.Channel
+}
+
+func newRabbitChannel(dsn string, queue string) (*rabbitChannel, error) {
+	if dsn == "" {
+		return nil, ErrRabbitDSNEmpty
+	}
+
+	conn, err := amqp.Dial(dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	ch, err := conn.Channel()
+	if err != nil {
+		conn.Close()
+		return nil, err
+	}
+
+	if _, err = ch.QueueDeclare(
+		queue,
+		true,
+		false,
+		false,
+		false,
+		nil,
+	); err != nil {
+		ch.Close()
+		conn.Close()
+		return nil, err
+	}
+
+	return &rabbitChannel{
+		conn: conn,
+		ch:   ch,
+	}, nil
+}
+
+func (r *rabbitChannel) Close() {
+	if r.ch != nil {
+		_ = r.ch.Close()
+	}
+
+	if r.conn != nil {
+		_ = r.conn.Close()
+	}
+}
+
 // @Summary     Send JSON message to RabbitMQ queue
 // @Description Accepts JSON data, adds current time and sends it to RabbitMQ queue
 // @ID          rabbit-send
@@ -89,37 +139,16 @@ func publishJSONToQueue(ctx context.Context, dsn string, queue string, data dto.
 		return err
 	}
 
-	if dsn == "" {
-		return ErrRabbitDSNEmpty
-	}
-
-	conn, err := amqp.Dial(dsn)
+	rabbit, err := newRabbitChannel(dsn, queue)
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
-
-	ch, err := conn.Channel()
-	if err != nil {
-		return err
-	}
-	defer ch.Close()
-
-	if _, err = ch.QueueDeclare(
-		queue,
-		true,
-		false,
-		false,
-		false,
-		nil,
-	); err != nil {
-		return err
-	}
+	defer rabbit.Close()
 
 	publishCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	return ch.PublishWithContext(
+	return rabbit.ch.PublishWithContext(
 		publishCtx,
 		"",
 		queue,
@@ -136,35 +165,14 @@ func publishJSONToQueue(ctx context.Context, dsn string, queue string, data dto.
 func readAllJSONFromQueue(dsn string, queue string) ([]dto.RabbitMessage, error) {
 	messages := make([]dto.RabbitMessage, 0)
 
-	if dsn == "" {
-		return messages, ErrRabbitDSNEmpty
-	}
-
-	conn, err := amqp.Dial(dsn)
+	rabbit, err := newRabbitChannel(dsn, queue)
 	if err != nil {
 		return messages, err
 	}
-	defer conn.Close()
-
-	ch, err := conn.Channel()
-	if err != nil {
-		return messages, err
-	}
-	defer ch.Close()
-
-	if _, err = ch.QueueDeclare(
-		queue,
-		true,
-		false,
-		false,
-		false,
-		nil,
-	); err != nil {
-		return messages, err
-	}
+	defer rabbit.Close()
 
 	for {
-		delivery, ok, err := ch.Get(queue, true)
+		delivery, ok, err := rabbit.ch.Get(queue, false)
 		if err != nil {
 			return messages, err
 		}
@@ -175,6 +183,11 @@ func readAllJSONFromQueue(dsn string, queue string) ([]dto.RabbitMessage, error)
 
 		var message dto.RabbitMessage
 		if err = json.Unmarshal(delivery.Body, &message); err != nil {
+			_ = delivery.Nack(false, true)
+			return messages, err
+		}
+
+		if err = delivery.Ack(false); err != nil {
 			return messages, err
 		}
 
