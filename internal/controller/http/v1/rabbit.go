@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -118,17 +119,16 @@ func (r *Routes) sendRabbitMessage(c *gin.Context) {
 // @Failure     500 {object} dto.Response
 // @Router      /v1/rabbit/read-all [get]
 func (r *Routes) readAllRabbitMessages(c *gin.Context) {
-	messages, err := readAllJSONFromQueue(r.rabbitDSN(), rabbitSendQueue)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.Response{
-			Message: err.Error(),
-		})
-		return
+	messages, readErrors := readAllJSONFromQueue(c.Request.Context(), r.rabbitDSN(), rabbitSendQueue)
+
+	message := "Ok"
+	if len(readErrors) > 0 {
+		message = fmt.Sprintf("read with %d error(s)", len(readErrors))
 	}
 
 	c.JSON(http.StatusOK, dto.Response{
-		Success: true,
-		Message: "Ok",
+		Success: len(readErrors) == 0,
+		Message: message,
 		Data:    messages,
 	})
 }
@@ -162,19 +162,28 @@ func publishJSONToQueue(ctx context.Context, dsn string, queue string, data dto.
 	)
 }
 
-func readAllJSONFromQueue(dsn string, queue string) ([]dto.RabbitMessage, error) {
+func readAllJSONFromQueue(ctx context.Context, dsn string, queue string) ([]dto.RabbitMessage, []error) {
 	messages := make([]dto.RabbitMessage, 0)
+	readErrors := make([]error, 0)
 
 	rabbit, err := newRabbitChannel(dsn, queue)
 	if err != nil {
-		return messages, err
+		return messages, []error{err}
 	}
 	defer rabbit.Close()
 
 	for {
+		select {
+		case <-ctx.Done():
+			readErrors = append(readErrors, ctx.Err())
+			return messages, readErrors
+		default:
+		}
+
 		delivery, ok, err := rabbit.ch.Get(queue, false)
 		if err != nil {
-			return messages, err
+			readErrors = append(readErrors, err)
+			return messages, readErrors
 		}
 
 		if !ok {
@@ -183,18 +192,24 @@ func readAllJSONFromQueue(dsn string, queue string) ([]dto.RabbitMessage, error)
 
 		var message dto.RabbitMessage
 		if err = json.Unmarshal(delivery.Body, &message); err != nil {
-			_ = delivery.Nack(false, true)
-			return messages, err
+			if ackErr := delivery.Ack(false); ackErr != nil {
+				readErrors = append(readErrors, fmt.Errorf("json unmarshal: %w; ack invalid message: %w", err, ackErr))
+				continue
+			}
+
+			readErrors = append(readErrors, fmt.Errorf("json unmarshal: %w", err))
+			continue
 		}
 
 		if err = delivery.Ack(false); err != nil {
-			return messages, err
+			readErrors = append(readErrors, fmt.Errorf("ack: %w", err))
+			continue
 		}
 
 		messages = append(messages, message)
 	}
 
-	return messages, nil
+	return messages, readErrors
 }
 
 func (r *Routes) rabbitDSN() string {
